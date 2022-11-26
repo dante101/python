@@ -1,0 +1,77 @@
+#!/usr/bin/python3
+################### requiartments modules ####################################
+# 1. python3-pandas (apt install python3-pandas)
+# 2. python3-sh (apt install python3-sh)
+# 3. python3-progressbar (apt install python3-progressbar)
+#from progress.bar import Bar
+import gzip
+import os, pwd
+import psycopg2 as psy
+import pandas as pd
+import sys
+from   sh import pg_dump, ErrorReturnCode_1
+from   datetime import date
+from time import sleep
+
+################ Variables ##############################################
+today = date.today()
+date = today.strftime("%d%m%y")
+dbnames = []
+excludes = ['postgres', 'tempalte1', 'template0']
+dbuser_name = pwd.getpwnam('postgres')[0]
+try:
+    dbname = sys.argv[1]
+except IndexError:
+    print("Укажите имя базы данных или запустите с ключом 'list' чтобы вывести список доступных баз данных или 'help' для справки")
+    exit()
+ark_name = dbname + date + ".sql.gz"
+#bar = Bar('Processing', max = 100)
+#bar = progressbar.ProgressBar(maxval=100, \
+#    widgets=[progressbar.Bar('=', '[', ']'), ' ', progressbar.Percentage()])
+#bar.start()
+#for i in range(100):
+#     bar.next()
+#     bar.update(i+1)
+#     sleep(0.1)
+#bar.finish()
+
+work_dir = "/srv/backup/irida/"  ## Change work dir #########################################
+os.chdir(work_dir) ############################################################
+
+
+############## Functions ################################################
+def usage():
+   print("usage:\n Использование:  telemsdump (имя базы данных)\n Например:  telemsdump telems_main\n telemsdump help - выводит эту страницу\n telemsdump list -  список существующих баз данных")
+   return 0
+
+
+def listdb():
+   conn = psy.connect("dbname=postgres user=postgres") 
+   cur = conn.cursor()
+#  cur.execute("SELECT datname FROM pg_database;")
+#  dblist = cur.fetchall()
+   dblist = pd.read_sql_query("SELECT datname FROM pg_database;", conn)
+   cur.close()
+   print(dblist)
+   return 0
+
+
+if sys.argv[1] == "list":
+   listdb()
+   exit()
+if sys.argv[1] == "help":
+   usage()
+   exit()
+
+def createdump(dbname):
+   with gzip.open(ark_name, 'wb') as f:
+    try:
+      print('Wait please................')
+      pg_dump('-U', dbuser_name, '-w', dbname, _out=f)
+#      bar
+      print("База данных {} была сохранина в {}{}".format(dbname,work_dir,ark_name))
+    except ErrorReturnCode_1:
+      print("База данных",   dbname,  "не найдена")
+      os.remove(ark_name)
+
+createdump(dbname)

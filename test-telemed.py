@@ -12,7 +12,7 @@ options = webdriver.ChromeOptions()
 
 
 # url = "irida11"
-url = "https://tele-med.spb.ru/"
+url = "https://"
 service = Service(executable_path="/home/user/python/chromedriver/chromedriver")
 browser = webdriver.Chrome(service=service,  options=options)
 # browser.set_window_size(480, 320)
@@ -24,10 +24,10 @@ try:
     time.sleep(2)
     input_login = browser.find_element(By.ID, "signinInputLoginID")
     input_login.clear()
-    input_login.send_keys("admin-vega@vega.ru")
+    input_login.send_keys("")
     input_password = browser.find_element(By.ID, "signinInputPasswordID")
     input_password.clear()
-    input_password.send_keys("4F6H8K")
+    input_password.send_keys("")
     browser.get_screenshot_as_file('login.jpg')
     input_password.send_keys(Keys.ENTER)
     time.sleep(2)

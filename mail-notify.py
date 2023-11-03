@@ -12,7 +12,7 @@ def get_mail():
  # Задание переменных для подключения к серверу     
     mail_srv = "imap.rambler.ru"
     mail_port = 993
-    mail_user = "doctor.tmk@lenta.ru"
+    mail_user = ""
     mail_pass = ""
 
 
